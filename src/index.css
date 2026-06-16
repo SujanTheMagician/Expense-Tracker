@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 * { box-sizing: border-box; }
 
 body {
@@ -75,3 +77,48 @@ body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+
+/* ── Splash Screen ─────────────────────────────────────────────────────────── */
+@keyframes splashLogoIn {
+  0%   { opacity: 0; transform: scale(0.4) rotate(-10deg); }
+  60%  { opacity: 1; transform: scale(1.08) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes splashTextIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashBarGrow {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes splashFadeOut {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(52px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(52px) rotate(-360deg); }
+}
+
+@keyframes orbitReverse {
+  from { transform: rotate(0deg) translateX(38px) rotate(0deg); }
+  to   { transform: rotate(-360deg) translateX(38px) rotate(360deg); }
+}
+
+@keyframes floatDot {
+  0%, 100% { transform: translateY(0px); opacity: 0.6; }
+  50%       { transform: translateY(-8px); opacity: 1; }
+}
+
+.splash-logo-in   { animation: splashLogoIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.splash-text-in   { animation: splashTextIn 0.5s ease both; }
+.splash-fade-out  { animation: splashFadeOut 0.5s ease forwards; }
+.splash-bar       { animation: splashBarGrow 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.orbit-dot        { animation: orbit 2.5s linear infinite; }
+.orbit-dot-rev    { animation: orbitReverse 1.8s linear infinite; }
+.float-dot        { animation: floatDot 2s ease-in-out infinite; }

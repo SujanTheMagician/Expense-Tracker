@@ -2,6 +2,87 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Chart, ArcElement, Tooltip, Legend, DoughnutController } from "chart.js";
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
+// ─── SplashScreen ─────────────────────────────────────────────────────────────
+function SplashScreen({ onDone }) {
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setLeaving(true), 2600);
+    const t2 = setTimeout(() => onDone(), 3100);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onDone]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-[200] flex flex-col items-center justify-center select-none ${leaving ? "splash-fade-out" : ""}`}
+      style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4c1d95 65%, #1e1b4b 100%)" }}
+    >
+      {/* Ambient blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full opacity-20 blur-3xl" style={{ background: "#7c3aed" }} />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full opacity-15 blur-3xl" style={{ background: "#a78bfa" }} />
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 rounded-full opacity-10 blur-2xl" style={{ background: "#c4b5fd", transform: "translate(-50%,-50%)" }} />
+      </div>
+
+      {/* Floating particles */}
+      {[
+        { top: "15%", left: "10%", delay: "0s",    size: 6  },
+        { top: "25%", left: "85%", delay: "0.4s",  size: 4  },
+        { top: "70%", left: "8%",  delay: "0.8s",  size: 5  },
+        { top: "75%", left: "88%", delay: "0.2s",  size: 7  },
+        { top: "45%", left: "5%",  delay: "1s",    size: 3  },
+        { top: "55%", left: "92%", delay: "0.6s",  size: 4  },
+      ].map((p, i) => (
+        <div key={i} className="absolute rounded-full float-dot" style={{
+          top: p.top, left: p.left,
+          width: p.size, height: p.size,
+          background: "rgba(196,181,253,0.5)",
+          animationDelay: p.delay,
+        }} />
+      ))}
+
+      {/* Main logo + orbit rings */}
+      <div className="relative flex items-center justify-center mb-8 splash-logo-in" style={{ width: 120, height: 120 }}>
+        {/* Outer orbit ring */}
+        <div className="absolute inset-0 rounded-full border border-violet-500/20" />
+        {/* Orbit dot 1 */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="orbit-dot w-3 h-3 rounded-full" style={{ background: "#a78bfa", boxShadow: "0 0 8px #a78bfa" }} />
+        </div>
+        {/* Orbit dot 2 */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="orbit-dot-rev w-2 h-2 rounded-full" style={{ background: "#c4b5fd", animationDuration: "1.8s", boxShadow: "0 0 6px #c4b5fd" }} />
+        </div>
+
+        {/* Center logo */}
+        <div className="relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl"
+          style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)", boxShadow: "0 0 40px rgba(139,92,246,0.6)" }}>
+          <span className="text-white font-bold text-4xl" style={{ fontFamily: "DM Mono, monospace", lineHeight: 1 }}>₹</span>
+        </div>
+      </div>
+
+      {/* App name */}
+      <div className="splash-text-in text-center px-6" style={{ animationDelay: "0.5s" }}>
+        <h1 className="text-white font-bold mb-1" style={{ fontSize: "clamp(1.5rem, 5vw, 2rem)", letterSpacing: "-0.02em" }}>
+          Expense Tracker
+        </h1>
+        <p className="text-violet-300 text-sm font-medium mb-1">by Sujan Anandh</p>
+        <p className="text-violet-400/70 text-xs">3rd Year CSE · AMET University</p>
+      </div>
+
+      {/* Loading bar */}
+      <div className="mt-10 w-48 splash-text-in" style={{ animationDelay: "0.7s" }}>
+        <div className="h-0.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-full rounded-full splash-bar" style={{ background: "linear-gradient(90deg, #7c3aed, #a855f7, #c4b5fd)", animationDuration: "2.2s" }} />
+        </div>
+        <p className="text-violet-400/50 text-xs text-center mt-2 tracking-widest uppercase" style={{ fontSize: "10px" }}>
+          Loading your finances…
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = [
   { id: "food",          label: "Food & Drinks",  emoji: "🍔", color: "#f97316" },
@@ -516,13 +597,21 @@ function AboutPage() {
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [darkMode,    setDarkMode]    = useState(() => LS.get("darkMode", false));
+  const [showSplash,  setShowSplash]  = useState(true);
+  const [darkMode,    setDarkMode]    = useState(() => {
+    const saved = LS.get("darkMode", false);
+    // Apply immediately on mount to avoid flash
+    if (saved) document.documentElement.classList.add("dark");
+    return saved;
+  });
   const [page,        setPage]        = useState("tracker");
   const [expenses,    setExpenses]    = useState(() => LS.get("expenses", []));
   const [budget,      setBudget]      = useState(() => LS.get("budget", 5000));
   const [mobileMenu,  setMobileMenu]  = useState(false);
   const [confirmReset,setConfirmReset]= useState(false);
   const { toast, show: showToast, hide: hideToast } = useToast();
+
+  const handleSplashDone = useCallback(() => setShowSplash(false), []);
 
   useEffect(() => { LS.set("expenses", expenses); }, [expenses]);
   useEffect(() => { LS.set("budget",   budget);   }, [budget]);
@@ -542,8 +631,19 @@ export default function App() {
   const thisMonth    = expenses.filter((e) => monthKey(e.date) === monthKey(todayStr()));
   const monthlySpent = thisMonth.reduce((s, e) => s + e.amount, 0);
 
+  // Apply dark class to <html> so Tailwind v4 dark: variants work globally
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [darkMode]);
+
   return (
-    <div className={darkMode ? "dark" : ""}>
+    <div>
+      {showSplash && <SplashScreen onDone={handleSplashDone} />}
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
 
         {/* Nav */}

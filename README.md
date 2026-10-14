@@ -43,6 +43,6 @@ npm run build
 
 ## 👤 About
 
-- **Sujan Anandh** — [GitHub](https://github.com/sujan-anandh) · [LinkedIn](https://linkedin.com/in/sujan-anandh)
+- **Sujan Anandh** — [GitHub](https://github.com/SujanTheMagician) · [LinkedIn](https://www.linkedin.com/in/sujan-anandh-227253212)
 - 3rd Year B.Tech CSE, AMET University
 - Software Development Intern, ATIUM Sports

@@ -1,0 +1,9 @@
+{
+  "appId": "com.sujananandh.expensetracker",
+  "appName": "Expense Tracker",
+  "webDir": "dist",
+  "backgroundColor": "#1e1b4b",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  }
+}
